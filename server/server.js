@@ -4,13 +4,8 @@ const cors = require("cors");
 const http = require("http");
 const { Server } = require("socket.io");
 
-const Order = require("./models/Order");
+const app = express(); // ✅ MOVE THIS UP
 
-mongoose.connect("mongodb://127.0.0.1:27017/cafe")
-  .then(() => console.log("MongoDB Connected"))
-  .catch((err) => console.log(err));
-
-const app = express();
 app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
 
@@ -19,6 +14,38 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: "http://localhost:5173" },
 });
+
+const Order = require("./models/Order");
+const Table = require("./models/Table");
+
+mongoose.connect("mongodb://127.0.0.1:27017/cafe")
+  .then(() => console.log("MongoDB Connected"))
+  .catch((err) => console.log(err));
+
+
+// ================= TABLE ROUTES =================
+
+// Get all tables
+app.get("/api/tables", async (req, res) => {
+  const tables = await Table.find();
+  res.json(tables);
+});
+
+// Add table
+app.post("/api/tables", async (req, res) => {
+  const { tableNumber } = req.body;
+  const newTable = await Table.create({ tableNumber });
+  res.json(newTable);
+});
+
+// Delete table
+app.delete("/api/tables/:id", async (req, res) => {
+  await Table.findByIdAndDelete(req.params.id);
+  res.json({ message: "Table deleted" });
+});
+
+
+// ================= SOCKET =================
 
 io.on("connection", (socket) => {
 
@@ -33,7 +60,9 @@ io.on("connection", (socket) => {
 });
 
 
-// 🔹 Create Order
+// ================= ORDER ROUTES =================
+
+// Create Order
 app.post("/api/order", async (req, res) => {
   try {
     const order = await Order.create(req.body);
@@ -46,8 +75,7 @@ app.post("/api/order", async (req, res) => {
   }
 });
 
-
-// 🔹 Confirm Order
+// Confirm Order
 app.put("/api/order/:id", async (req, res) => {
   try {
     const order = await Order.findByIdAndUpdate(
@@ -68,12 +96,12 @@ app.put("/api/order/:id", async (req, res) => {
   }
 });
 
-
-// 🔹 Get All Orders (Admin reload support)
+// Get All Orders
 app.get("/api/orders", async (req, res) => {
   const orders = await Order.find().sort({ createdAt: -1 });
   res.json(orders);
 });
+
 
 server.listen(5001, () =>
   console.log("Server running on port 5001")

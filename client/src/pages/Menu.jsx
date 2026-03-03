@@ -1,49 +1,3 @@
-// import { useEffect } from "react";
-// import { useSearchParams } from "react-router-dom";
-// import axios from "axios";
-// import { io } from "socket.io-client";
-
-// const socket = io("http://localhost:5001");
-
-// function Menu() {
-//   const [params] = useSearchParams();
-//   const tableId = params.get("tableId");
-
-//   useEffect(() => {
-//     if (!tableId) return;
-
-//     socket.emit("joinTable", tableId);
-
-//     socket.on("orderConfirmed", () => {
-//       alert("Order Confirmed ✅");
-//     });
-
-//     return () => socket.off("orderConfirmed");
-//   }, [tableId]);
-
-//   const placeOrder = async () => {
-//     await axios.post("http://localhost:5001/api/order", {
-//       tableId,
-//       items: [{ name: "Coffee", qty: 1 }],
-//       total: 100,
-//     });
-
-//     alert("Order Placed ☕");
-//   };
-
-//   return (
-//     <div>
-//       <h2>Table: {tableId}</h2>
-//       <button onClick={placeOrder}>
-//         Order Coffee
-//       </button>
-//     </div>
-//   );
-// }
-
-// export default Menu;
-
-
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
@@ -140,6 +94,7 @@ function Menu() {
         Place Order
       </button>
     </div>
+
   );
 }
 
